@@ -6,6 +6,8 @@ import "github.com/gorilla/mux"
 import "encoding/json"
 import "../utils"
 
+
+
 /* @ This file contains view functions, 
  *   which are called after user goes 
  *   through registered in UrlRegister 
@@ -73,6 +75,23 @@ func DeserializeJson(json_str string) DeserializedJsonData_s {
 	return deserialized_json_data
 }
 
+/* @ API_GetTotalTransactionsAmountOfEthBlockView subfunction
+ * Note: This function has defect in utils.HexToFloat (values > float64 will be respresented as 0)
+ */
+func CountTotalValueOfTransactions(deserialized_json_data DeserializedJsonData_s, num_of_transactions int) float64 {
+	var EthInWei = 1.6861753e-10 // Wei is 1✕10​**-1 Ether
+
+	var total float64 = 0
+	for i := 0; i < num_of_transactions; i++ {
+        value_field := deserialized_json_data.Result.TransactionsList[i].Value
+        value_field_without_0x := value_field[2: len(value_field)]
+
+        // Value field is represented in Wei but total must be represented in Ether => multiply by EthInWei
+        total += utils.HexToFloat(value_field_without_0x) * EthInWei
+    }
+    return total
+}
+
 // URL: domain/api/block/{block_number:[0-9]+}/total
 func API_GetTotalTransactionsAmountOfEthBlockView(page http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -81,11 +100,12 @@ func API_GetTotalTransactionsAmountOfEthBlockView(page http.ResponseWriter, r *h
 	var requested_json_data     string = GetBlockByNumber(block_number_in_hex, "2GB6GZ1UT7TU42Y9NAGRCV2D7IFCT3BXU5")
 	var deserialized_json_data DeserializedJsonData_s = DeserializeJson(requested_json_data)
 
-	for i := 0; i < len(deserialized_json_data.Result.TransactionsList); i++ {
-        fmt.Println(deserialized_json_data.Result.TransactionsList[i].Value)
-    }
-
-	fmt.Fprintf(page, " => %v\n", requested_json_data)
+	var num_of_transactions = len(deserialized_json_data.Result.TransactionsList)
+	var total               = CountTotalValueOfTransactions(deserialized_json_data, num_of_transactions)
+	
+	// fmt.Println(num_of_transactions, total) // Debug log
+	var sendback_data string = fmt.Sprintf(`{"transactions": %d, "amount": %e}`, num_of_transactions, total);
+	fmt.Fprintf(page, "%v\n", sendback_data)
 }
 
 
