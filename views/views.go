@@ -16,7 +16,7 @@ import "../utils"
  *	 View functions have `View` postfix. 
  */
 
-
+var API_KEY string = "2GB6GZ1UT7TU42Y9NAGRCV2D7IFCT3BXU5"
 
 // URL: domain/
 func IndexView(page http.ResponseWriter, r *http.Request) {
@@ -98,7 +98,7 @@ func API_GetTotalTransactionsAmountOfEthBlockView(page http.ResponseWriter, r *h
 	vars := mux.Vars(r)
 	var block_number_in_decimal string = vars["block_number"]
 	var block_number_in_hex     string = utils.ConvertStrToHex(block_number_in_decimal)
-	var requested_json_data     string = GetBlockByNumber(block_number_in_hex, "2GB6GZ1UT7TU42Y9NAGRCV2D7IFCT3BXU5")
+	var requested_json_data     string = GetBlockByNumber(block_number_in_hex, API_KEY)
 	var deserialized_json_data DeserializedJsonData_s = DeserializeJson(requested_json_data)
 
 	var num_of_transactions = len(deserialized_json_data.Result.TransactionsList)
