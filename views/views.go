@@ -70,7 +70,8 @@ type DeserializedJsonData_s struct {
 func DeserializeJson(json_str string) DeserializedJsonData_s {
 	var deserialized_json_data DeserializedJsonData_s
 	if err := json.Unmarshal([]byte(json_str), &deserialized_json_data); err != nil {
-		panic(err)
+		// panic(err)
+		/* must be handled in future */
 	}
 	return deserialized_json_data
 }
