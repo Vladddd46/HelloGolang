@@ -5,7 +5,7 @@ import "net/http"
 import "github.com/gorilla/mux"
 import "encoding/json"
 import "../utils"
-
+import "math/big"
 
 
 /* @ This file contains view functions, 
@@ -75,22 +75,18 @@ func DeserializeJson(json_str string) DeserializedJsonData_s {
 	return deserialized_json_data
 }
 
-/* @ API_GetTotalTransactionsAmountOfEthBlockView subfunction
- * Note: This function has defect in utils.HexToInt (values > int64 will be respresented as 0)
- */
-func CountTotalValueOfTransactions(deserialized_json_data DeserializedJsonData_s, num_of_transactions int) float64 {
-	var EthInWei = 1.6861753e-10 // Wei is 1✕10​**-1 Ether
+// @ API_GetTotalTransactionsAmountOfEthBlockView subfunction
+func CountTotalValueOfTransactions(deserialized_json_data DeserializedJsonData_s, num_of_transactions int) *big.Float {
+	EthInWei := big.NewFloat(1.6861753e-10)
 
-	var total int64 = 0
+	total := big.NewFloat(0)
 	for i := 0; i < num_of_transactions; i++ {
         value_field := deserialized_json_data.Result.TransactionsList[i].Value
         value_field_without_0x := value_field[2: len(value_field)]
-
-        // Value field is represented in Wei but total must be represented in Ether => multiply by EthInWei
-        total += utils.HexToInt(value_field_without_0x)
+        total.Add(total, utils.HexToBigFloat(value_field_without_0x))
     }
-    var res float64 = float64(total) * EthInWei
-    return res
+    total.Mul(total, EthInWei)
+    return total
 }
 
 // URL: domain/api/block/{block_number:[0-9]+}/total

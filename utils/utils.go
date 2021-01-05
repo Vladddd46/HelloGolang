@@ -2,11 +2,9 @@ package utils
 
 import "fmt"
 import "strconv"
-import "unsafe"
 import "io/ioutil"
 import "log"
-
-
+import "math/big"
 
 /* @ This file contains general-purpose functions
  */
@@ -27,35 +25,10 @@ func ConvertStrToHex(str string) string {
 
 
 
-/* Converts hex string in float64.
- *** SHOULD BE FIXED IN FUTURE
- */
-func HexToFloat(hex_string string) float64 {
-	n, err := strconv.ParseUint(hex_string, 16, 64)
-
-	/* !!! All values bigger than float64 max value will be zero.
-	 * In future it should be fixed by changing float64 to bigger data types
-	 */
-	if err != nil {
-		return 0
-	}
-	n2 := uint64(n)
-	f := *(*float64)(unsafe.Pointer(&n2))
-	return f
-}
-
-
-
-func HexToInt(hex_string string) int64 {
-    value, err := strconv.ParseInt(hex_string, 16, 64)
-    /* !!! All values bigger than int64 max value will be zero.
-	 * In future it should be fixed by changing int64 to bigger data types
-	 */
-    if err != nil {
-        fmt.Printf ("Conversion failed: %s\n", err)
-        return 0
-    } 
-    return value
+func HexToBigFloat(hex_string string) *big.Float {
+    distance := new(big.Float)
+    distance.SetString(hex_string)
+    return distance
 }
 
 
