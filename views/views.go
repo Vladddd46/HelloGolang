@@ -16,7 +16,6 @@ import "../utils"
  *	 View functions have `View` postfix. 
  */
 
-var API_KEY string = "2GB6GZ1UT7TU42Y9NAGRCV2D7IFCT3BXU5"
 
 // URL: domain/
 func IndexView(page http.ResponseWriter, r *http.Request) {
@@ -82,15 +81,16 @@ func DeserializeJson(json_str string) DeserializedJsonData_s {
 func CountTotalValueOfTransactions(deserialized_json_data DeserializedJsonData_s, num_of_transactions int) float64 {
 	var EthInWei = 1.6861753e-10 // Wei is 1✕10​**-1 Ether
 
-	var total float64 = 0
+	var total int64 = 0
 	for i := 0; i < num_of_transactions; i++ {
         value_field := deserialized_json_data.Result.TransactionsList[i].Value
         value_field_without_0x := value_field[2: len(value_field)]
 
         // Value field is represented in Wei but total must be represented in Ether => multiply by EthInWei
-        total += utils.HexToFloat(value_field_without_0x) * EthInWei
+        total += utils.HexToInt(value_field_without_0x)
     }
-    return total
+    var res float64 = float64(total) * EthInWei
+    return res
 }
 
 // URL: domain/api/block/{block_number:[0-9]+}/total
@@ -98,7 +98,8 @@ func API_GetTotalTransactionsAmountOfEthBlockView(page http.ResponseWriter, r *h
 	vars := mux.Vars(r)
 	var block_number_in_decimal string = vars["block_number"]
 	var block_number_in_hex     string = utils.ConvertStrToHex(block_number_in_decimal)
-	var requested_json_data     string = GetBlockByNumber(block_number_in_hex, API_KEY)
+	var api_key string = utils.GetApiKey()
+	var requested_json_data     string = GetBlockByNumber(block_number_in_hex, api_key)
 	var deserialized_json_data DeserializedJsonData_s = DeserializeJson(requested_json_data)
 
 	var num_of_transactions = len(deserialized_json_data.Result.TransactionsList)

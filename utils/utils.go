@@ -3,6 +3,8 @@ package utils
 import "fmt"
 import "strconv"
 import "unsafe"
+import "io/ioutil"
+import "log"
 
 
 
@@ -41,3 +43,25 @@ func HexToFloat(hex_string string) float64 {
 	f := *(*float64)(unsafe.Pointer(&n2))
 	return f
 }
+
+
+func HexToInt(hex_string string) int64 {
+    value, err := strconv.ParseInt(hex_string, 16, 64)
+    if err != nil {
+        fmt.Printf ("Conversion failed: %s\n", err)
+    } 
+    return value
+}
+
+
+
+// Gets API key from config file.
+func GetApiKey() string {
+	content, err := ioutil.ReadFile("config.txt")
+    if err != nil {
+        log.Fatal(err)
+    }
+    return string(content)
+}
+
+
