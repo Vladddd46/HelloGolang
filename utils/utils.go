@@ -45,10 +45,15 @@ func HexToFloat(hex_string string) float64 {
 }
 
 
+
 func HexToInt(hex_string string) int64 {
     value, err := strconv.ParseInt(hex_string, 16, 64)
+    /* !!! All values bigger than int64 max value will be zero.
+	 * In future it should be fixed by changing int64 to bigger data types
+	 */
     if err != nil {
         fmt.Printf ("Conversion failed: %s\n", err)
+        return 0
     } 
     return value
 }
@@ -57,7 +62,7 @@ func HexToInt(hex_string string) int64 {
 
 // Gets API key from config file.
 func GetApiKey() string {
-	content, err := ioutil.ReadFile("config.txt")
+	content, err := ioutil.ReadFile("api_key.txt")
     if err != nil {
         log.Fatal(err)
     }

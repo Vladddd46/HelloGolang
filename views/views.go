@@ -76,7 +76,7 @@ func DeserializeJson(json_str string) DeserializedJsonData_s {
 }
 
 /* @ API_GetTotalTransactionsAmountOfEthBlockView subfunction
- * Note: This function has defect in utils.HexToFloat (values > float64 will be respresented as 0)
+ * Note: This function has defect in utils.HexToInt (values > int64 will be respresented as 0)
  */
 func CountTotalValueOfTransactions(deserialized_json_data DeserializedJsonData_s, num_of_transactions int) float64 {
 	var EthInWei = 1.6861753e-10 // Wei is 1✕10​**-1 Ether

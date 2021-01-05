@@ -1,5 +1,6 @@
 package main
 
+import "fmt"
 import "net/http" 
 import "github.com/gorilla/mux"
 
@@ -14,6 +15,7 @@ func UrlRegister() {
 }
 
 func StartServer(port string) {
+	fmt.Println("Server Started on port: " + port)
 	http.ListenAndServe(":" + port, nil)
 }
 
