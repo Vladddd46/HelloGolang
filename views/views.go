@@ -77,7 +77,7 @@ func DeserializeJson(json_str string) DeserializedJsonData_s {
 
 // @ API_GetTotalTransactionsAmountOfEthBlockView subfunction
 func CountTotalValueOfTransactions(deserialized_json_data DeserializedJsonData_s, num_of_transactions int) *big.Float {
-	EthInWei := big.NewFloat(1.6861753e-10)
+	EthInWei := big.NewFloat(1e-18)
 
 	total := big.NewFloat(0)
 	for i := 0; i < num_of_transactions; i++ {
