@@ -87,7 +87,7 @@ func CountTotalValueOfTransactions(deserialized_json_data DeserializedJsonData_s
     }
     val:= new(big.Float).SetInt(total)
     val.Mul(val, EthInWei)
-    result := fmt.Sprintf("%f", val) 
+    result := fmt.Sprintf("%f", val)
     return result
 }
 
