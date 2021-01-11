@@ -89,18 +89,49 @@ func CountTotalValueOfTransactions(deserialized_json_data DeserializedJsonData_s
     return total
 }
 
+// @ used in RequestErrorHandle
+type RequestFailed_s struct {
+	Message  string `json:"message"`
+	Result   string `json:"result"`
+}
+
+// @ RequestErrorHandle subfunction
+func DeserializeJsonERROR(json_str string) RequestFailed_s {
+	var deserialized_json_data RequestFailed_s
+	if err := json.Unmarshal([]byte(json_str), &deserialized_json_data); err != nil {
+		// panic(err)
+		/* must be handled in future */
+	}
+	return deserialized_json_data
+}
+
+// @ API_GetTotalTransactionsAmountOfEthBlockView subfunction
+func RequestErrorHandle(page http.ResponseWriter, requested_json_data string) bool {
+	var res RequestFailed_s = DeserializeJsonERROR(requested_json_data)
+	if (res.Result != "") {
+		page.WriteHeader(http.StatusInternalServerError)
+		page.Write([]byte("505 - Internal server error\n"))
+    	page.Write([]byte("Message: "+ res.Result))
+    	return true
+	}
+	// other errors
+	return false
+}
+
 // URL: domain/api/block/{block_number:[0-9]+}/total
 func API_GetTotalTransactionsAmountOfEthBlockView(page http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	var block_number_in_decimal string = vars["block_number"]
 	var block_number_in_hex     string = utils.ConvertStrToHex(block_number_in_decimal)
-	var api_key string = utils.GetApiKey()
+	var api_key                 string = utils.GetApiKey()
 	var requested_json_data     string = GetBlockByNumber(block_number_in_hex, api_key)
-	var deserialized_json_data DeserializedJsonData_s = DeserializeJson(requested_json_data)
+	if (RequestErrorHandle(page, requested_json_data)) {
+		return
+	}
 
+	var deserialized_json_data DeserializedJsonData_s = DeserializeJson(requested_json_data)
 	var num_of_transactions = len(deserialized_json_data.Result.TransactionsList)
 	var total               = CountTotalValueOfTransactions(deserialized_json_data, num_of_transactions)
-	
 	// fmt.Println(num_of_transactions, total) // Debug log
 	var sendback_data string = fmt.Sprintf(`{"transactions": %d, "amount": %e}`, num_of_transactions, total);
 	fmt.Fprintf(page, "%v\n", sendback_data)
