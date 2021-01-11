@@ -32,6 +32,13 @@ func HexToBigFloat(hex_string string) *big.Float {
 }
 
 
+func HexToBigInt(hex_string string) *big.Int {
+    distance := new(big.Int)
+    distance.SetString(hex_string, 16)
+    return distance
+}
+
+
 
 // Gets API key from config file.
 func GetApiKey() string {

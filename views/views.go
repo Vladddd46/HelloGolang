@@ -7,7 +7,6 @@ import "encoding/json"
 import "../utils"
 import "math/big"
 
-
 /* @ This file contains view functions, 
  *   which are called after user goes 
  *   through registered in UrlRegister 
@@ -76,17 +75,20 @@ func DeserializeJson(json_str string) DeserializedJsonData_s {
 }
 
 // @ API_GetTotalTransactionsAmountOfEthBlockView subfunction
-func CountTotalValueOfTransactions(deserialized_json_data DeserializedJsonData_s, num_of_transactions int) *big.Float {
+func CountTotalValueOfTransactions(deserialized_json_data DeserializedJsonData_s, num_of_transactions int) string {
 	EthInWei := big.NewFloat(1e-18)
 
-	total := big.NewFloat(0)
+	total := big.NewInt(0)
 	for i := 0; i < num_of_transactions; i++ {
         value_field := deserialized_json_data.Result.TransactionsList[i].Value
         value_field_without_0x := value_field[2: len(value_field)]
-        total.Add(total, utils.HexToBigFloat(value_field_without_0x))
+        var res = utils.HexToBigInt(value_field_without_0x)
+        total.Add(total, res)
     }
-    total.Mul(total, EthInWei)
-    return total
+    val:= new(big.Float).SetInt(total)
+    val.Mul(val, EthInWei)
+    result := fmt.Sprintf("%f", val) 
+    return result
 }
 
 // @ used in RequestErrorHandle
@@ -133,7 +135,7 @@ func API_GetTotalTransactionsAmountOfEthBlockView(page http.ResponseWriter, r *h
 	var num_of_transactions = len(deserialized_json_data.Result.TransactionsList)
 	var total               = CountTotalValueOfTransactions(deserialized_json_data, num_of_transactions)
 	// fmt.Println(num_of_transactions, total) // Debug log
-	var sendback_data string = fmt.Sprintf(`{"transactions": %d, "amount": %e}`, num_of_transactions, total);
+	var sendback_data string = fmt.Sprintf(`{"transactions": %d, "amount": %s}`, num_of_transactions, total);
 	fmt.Fprintf(page, "%v\n", sendback_data)
 }
 
